@@ -15,6 +15,14 @@ class MyAgent(TetrisAgent.TetrisAgent):
     
     #############################
     # Define action_from_state
+    #
+    # The actions are as follows:
+    # 0: Move the current piece left, if it is a valid move
+    # 1: Move the current piece right, if it is a valid move
+    # 2: Rotate the current piece clockwise
+    # 3: Rotate the current piece counter-clockwise
+    # 4: Drop the piece to the bottom
+    # 5: no-op
     #############################   
     def action_from_state(self):
         branches = self.TetrisGame.next_states()

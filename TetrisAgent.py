@@ -16,8 +16,8 @@ class TetrisAgent:
 
     # Defines the Agent
     def __init__(self, gridWidth, gridHeight, policy):
-        self.gridWidth = 10
-        self.gridHeight = 20
+        self.gridWidth = gridWidth
+        self.gridHeight = gridHeight
         self.pieces = Piece.loadStandardSet(gridWidth)
         self.TetrisGame = Tetris.Tetris(self.gridWidth, self.gridHeight, self.pieces)
         self.history = []
