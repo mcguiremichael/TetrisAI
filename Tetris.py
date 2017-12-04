@@ -16,6 +16,7 @@ class Tetris:
         
         self.grid = Grid.Grid(self.gridWidth, self.gridHeight)
         self.score = 0
+        self.delta_score = 0
         self.currentPiece = pieces[random.randint(0, len(pieces))-1]
         self.nextPiece = pieces[random.randint(0, len(pieces))-1]
         self.rowValue = 100
@@ -89,7 +90,8 @@ class Tetris:
         
     def destroyRows(self):
         num_rows = self.grid.destroyRows()
-        self.score += self.rowValue * num_rows
+        self.delta_score = self.rowValue * num_rows
+        self.score += self.delta_score
         
     def movePieceDown(self):
         self.movePiece(0, 1)

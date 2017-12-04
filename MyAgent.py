@@ -41,7 +41,7 @@ def main():
     Agent = MyAgent(10, 20, policy)
     histories = []
     # Generate data for 20 random games
-    for i in range(20):
+    for i in range(300):
         Agent.run()
         histories.append(Agent.history)
         Agent.reset()
