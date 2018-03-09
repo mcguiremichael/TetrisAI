@@ -51,6 +51,8 @@ class Grid:
      
         return len(indices)
         
+    
+        
         
         
 def states_to_grid(state, grid):
@@ -64,7 +66,6 @@ def states_to_grid(state, grid):
     for i in range(piece.height):
         for j in range(piece.width):
             if m[i][j] == 1:
-                #print(i+piece.topLeftYBlock, j+piece.topLeftXBlock)
                 grid[i+piece.topLeftYBlock][j+piece.topLeftXBlock].isOn = True
                 grid[i+piece.topLeftYBlock][j+piece.topLeftXBlock].color = piece.color
     return grid
