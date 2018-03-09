@@ -14,6 +14,7 @@ class Piece:
         
         self.color = color
         
+        
     def movePiece(self, dx, dy):
         self.topLeftXBlock += dx
         self.topLeftYBlock += dy
@@ -43,6 +44,9 @@ class Piece:
     def moveLeft(self):
         self.movePiece(-1, 0)
         
+    def to_array(self):
+        array = [self.matrix, self.windowWidth, self.topLeftXBlock, self.topLeftYBlock]
+        return np.array(array)
         
         
 #STATIC METHODS
@@ -55,3 +59,17 @@ def loadStandardSet(gridWidth):
     p6 = Piece(np.array([[0, 1, 1], [1, 1, 0]]), gridWidth, (0, 255, 0))
     p7 = Piece(np.array([[1, 0], [1, 1], [0, 1]]), gridWidth, (255, 0, 255))
     return [p1, p2, p3, p4, p5, p6, p7]
+    
+def alt_init(npMatrix, windowWidth, topLeftX, topLeftY):
+    p = Piece(npMatrix, windowWidth, (255, 255, 255))
+    
+    p.width = npMatrix.shape[1]
+    p.height = npMatrix.shape[0]
+        
+def from_array(array):
+    matrix = array[0]
+    windowWidth = array[1]
+    topLeftX = array[2]
+    topLeftY = array[3]
+    return Piece(matrix, windowWidth, (255, 255, 255))
+    
