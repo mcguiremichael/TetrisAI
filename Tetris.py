@@ -15,21 +15,23 @@ class Tetris:
         self.pieces = pieces
         
         self.grid = Grid.Grid(self.gridWidth, self.gridHeight)
-        self.score = 0
-        self.delta_score = 0
+        self.score = 0.
+        self.delta_score = 0.
         self.currentPiece = pieces[random.randint(0, len(pieces))-1]
-        self.nextPiece = pieces[random.randint(0, len(pieces))-1]
-        self.rowValue = 100
+        self.nextPiece = copy.deepcopy(pieces[random.randint(0, len(pieces))-1])
+        self.rowValue = 1.0
+        
+        self.screen = pygame.display.set_mode((600, 600))
         
     def reset(self):
         self.grid = Grid.Grid(self.gridWidth, self.gridHeight)
         self.score = 0
         self.currentPiece = self.pieces[random.randint(0, len(self.pieces))-1]
-        self.nextPiece = self.pieces[random.randint(0, len(self.pieces))-1]
+        self.nextPiece = copy.deepcopy(self.pieces[random.randint(0, len(self.pieces))-1])
         
     def step(self, action):
         if (not self.canMoveDown()) and self.currentPiece.topLeftYBlock == 1:
-            return -1
+            return -10
         if (action == 0):
             self.moveLeft()
         if (action == 1):
@@ -39,25 +41,28 @@ class Tetris:
         if (action == 3):
             self.rotateCoCW()
         if (action == 4):
-            self.drop()
-        if (action == 5):
             pass
+        """    
+        if (action == 5):
+            self.drop()
+        """
         self.down()
         self.destroyRows()
         return 0
             
     def next_states(self):
         states = []
-        for i in range(6):
+        for i in range(5):
             s = copy.deepcopy(self)
             s.step(i)
-            states.append(s)
+            states.append(s.grid)
         return states
         
     def updatePieces(self):
         self.nextPiece.reset()
         self.currentPiece = self.nextPiece
-        self.nextPiece = self.pieces[random.randint(0, len(self.pieces)) - 1]
+        self.nextPiece = copy.deepcopy(self.pieces[random.randint(0, len(self.pieces)) - 1])
+        self.nextPiece.reset()
         
         
     def addPieceToGrid(self):
@@ -74,18 +79,6 @@ class Tetris:
         for i in range(len(grid)):
             for j in range(len(grid[0])):
                 pygame.draw.rect(surface, grid[i][j].color, (topLeftX + boxWidth * j, topLeftY + boxWidth * i, boxWidth - margin, boxWidth - margin))
-                
-                
-        #draws currentPiece
-        """
-        matrix = piece.matrix
-        x = piece.topLeftXBlock
-        y = piece.topLeftYBlock
-        for i in range(piece.width):
-            for j in range(piece.height):
-                if (piece.matrix[j][i] == 1):
-                    pygame.draw.rect(surface, piece.color, (topLeftX + boxWidth * (x + i), topLeftY + boxWidth * (y + j), boxWidth - margin, boxWidth - margin))
-        """
         
         
     def destroyRows(self):
@@ -198,16 +191,15 @@ class Tetris:
             
             
     def visualize(self, states):
-        surface = pygame.display.set_mode((600, 600))
         clock = pygame.time.Clock()
         for i in range(len(states)):
             #print (states[i][1].topLeftXBlock, states[i][1].topLeftYBlock)
             grid = Grid.Grid(self.gridWidth, self.gridHeight)
             grid = Grid.states_to_grid(states[i], grid)
-            self.drawGrid(surface, grid, 100, 100, 20, 1, states[i][1])
+            self.drawGrid(self.screen, grid, 100, 100, 20, 1, states[i][1])
             pygame.display.update()
             
             
             
-            clock.tick(10)
+            clock.tick(120)
         
