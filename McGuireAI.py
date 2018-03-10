@@ -19,6 +19,8 @@ from Piece import from_array
 # This file serves as a template for Tetris AI.
 
 
+
+
 """ Global Variables """
 
 width = 10
@@ -161,6 +163,7 @@ class MyAgent(TetrisAgent.TetrisAgent):
         self.errors = []
         
         self.num_frames = 0
+        self.loss = nn.MSELoss()
     
     #############################
     # Define action_from_state
@@ -183,7 +186,7 @@ class MyAgent(TetrisAgent.TetrisAgent):
                 action = random.randint(0, len(self.action_space()) - 1)
             else:
                 outputs = self.evaluate(current_state)
-                action = np.argmax(outputs.data.numpy())        # default action
+                action = np.argmax(outputs.data.cpu().numpy())        # default action
             
             if (self.num_frames % 20 == 0):
                 err = self.gradient_step()
@@ -275,19 +278,18 @@ class MyAgent(TetrisAgent.TetrisAgent):
     def gradient_step(self):
         data, actions, rewards, data_next = self.random_batch_samples()
         
-        actions = self.action_mask(actions)
+        actions = self.action_mask(actions).cuda()
         values = self.evaluate_many(data, self.Q)
         
         targets = self.Gamma * self.evaluate_many(data_next, self.cached_Q)
         targets = torch.max(targets, 1)[0]
-        
         #print(targets.data.numpy())
         
-        rewards = (Variable(torch.from_numpy(np.array(rewards)))).type(torch.DoubleTensor)
+        rewards = ((Variable(torch.from_numpy(np.array(rewards)), requires_grad=False)).type(torch.DoubleTensor)).cuda()
         
         #print(values, targets, rewards)
         
-        targets += (rewards / 10)
+        targets += rewards
         #targets += np.array(rewards)
         
         #targets = Variable(torch.from_numpy(targets))
@@ -295,12 +297,12 @@ class MyAgent(TetrisAgent.TetrisAgent):
         output = torch.masked_select(values, actions)
         t0 = time.time()
         self.optimizer.zero_grad()
-        error = self.Q.mse_loss(targets, output)
+        error = self.loss(output, Variable(targets.data, requires_grad=False))
         error.backward()
         self.optimizer.step()
         #print(output.data.numpy()[0], targets.data.numpy()[0])
         
-        return error.data.numpy()[0]
+        return error.data.cpu().numpy()[0]
         
     def train(self, num_iterations):
         print ("Now training : \n \n ")
@@ -512,6 +514,7 @@ def n_copies(list_to_copy, n):
 def main():
     # Define your policy
     policy = generateModel()
+    policy = torch.nn.DataParallel(policy).cuda()
     print(policy)
     # Define your optimizer
     optimizer = optim.SGD(policy.parameters(), lr=5e-5, momentum=0.5)
