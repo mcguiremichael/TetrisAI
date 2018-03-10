@@ -135,7 +135,7 @@ class MyAgent(TetrisAgent.TetrisAgent):
     ########################
     # Constructor
     ########################state
-    def __init__(self, gridWidth, gridHeight, policy=None, optimizer=None, epsilon_min=0.03, epsilon_max = 1.0, epsilon_decay = 50, training=True, batch_size=80, QDepth=1, Gamma=0.99, replay_mem_len = 30000):
+    def __init__(self, gridWidth, gridHeight, policy=None, optimizer=None, epsilon_min=0.03, epsilon_max = 1.0, epsilon_decay = 200, training=True, batch_size=80, QDepth=1, Gamma=0.99, replay_mem_len = 30000):
         TetrisAgent.TetrisAgent.__init__(self, gridWidth, gridHeight, policy)
         self.Q = policy
         self.Q.train()
@@ -514,7 +514,7 @@ def main():
     policy = generateModel()
     print(policy)
     # Define your optimizer
-    optimizer = optim.SGD(policy.parameters(), lr=5e-5, momentum=0.0)
+    optimizer = optim.SGD(policy.parameters(), lr=5e-5, momentum=0.5)
     # Declare Agent - it is constructed assuming it is to be trained
     Agent = MyAgent(10, 20, policy, optimizer)
     #print ("Generating replay memory . . .")
