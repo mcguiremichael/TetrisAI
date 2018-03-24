@@ -139,7 +139,10 @@ class MyAgent(TetrisAgent.TetrisAgent):
     ########################state
     def __init__(self, gridWidth, gridHeight, policy=None, optimizer=None, epsilon_min=0.03, epsilon_max = 1.0, epsilon_decay = 200, training=True, batch_size=80, QDepth=1, Gamma=0.99, replay_mem_len = 30000):
         TetrisAgent.TetrisAgent.__init__(self, gridWidth, gridHeight, policy)
+        self.use_cuda = torch.cuda.is_available()
         self.Q = policy
+        if (self.use_cuda):
+            self.Q = torch.nn.DataParallel(self.Q).cuda()
         self.Q.train()
         self.cached_Q = copy.deepcopy(policy)
         self.optimizer = optimizer
@@ -278,14 +281,19 @@ class MyAgent(TetrisAgent.TetrisAgent):
     def gradient_step(self):
         data, actions, rewards, data_next = self.random_batch_samples()
         
-        actions = self.action_mask(actions).cuda()
+        if (self.use_cuda):
+            actions = self.action_mask(actions).cuda()
+        else:
+            actions = self.action_mask(actions)
         values = self.evaluate_many(data, self.Q)
         
         targets = self.Gamma * self.evaluate_many(data_next, self.cached_Q)
         targets = torch.max(targets, 1)[0]
         #print(targets.data.numpy())
         
-        rewards = ((Variable(torch.from_numpy(np.array(rewards)), requires_grad=False)).type(torch.DoubleTensor)).cuda()
+        rewards = ((Variable(torch.from_numpy(np.array(rewards)), requires_grad=False)).type(torch.DoubleTensor))
+        if (self.use_cuda):
+            rewards = rewards.cuda()
         
         #print(values, targets, rewards)
         
